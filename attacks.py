@@ -48,6 +48,7 @@ def main(args, gpus):
             np.clip(np.load(args.restore), lower, upper)
     batch_per_gpu = batch_size // len(gpus)
     log_iters = args.log_iters
+    current_lr = args.learning_rate
     queries_per_iter = args.samples_per_draw
     max_iters = int(np.ceil(args.max_queries // queries_per_iter))
     max_lr = args.max_lr
@@ -80,10 +81,7 @@ def main(args, gpus):
     sess = tf.InteractiveSession()
     x = tf.placeholder(tf.float32, initial_img.shape)
     eval_logits, eval_preds = model(sess, tf.expand_dims(x, 0))
-    if target_class >= 0:
-        eval_percent_adv = tf.equal(eval_preds[0], tf.constant(target_class, tf.int64))
-    else:
-        eval_percent_adv = tf.not_equal(eval_preds[0], tf.constant(orig_class, tf.int64))
+    eval_percent_adv = tf.equal(eval_preds[0], tf.constant(target_class, tf.int64))
 
     # TENSORBOARD SETUP
     empirical_loss = tf.placeholder(dtype=tf.float32, shape=())
@@ -251,7 +249,7 @@ def main(args, gpus):
                 print("[log] backtracking eps to %3f" % (epsilon-prop_de,))
 
         # BOOK-KEEPING STUFF
-        num_queries += args.samples_per_draw*(zero_iters if label_only else 1)
+        num_queries += args.samples_per_draw
         log_text = 'Step %05d: loss %.4f lr %.2E eps %.3f (time %.4f)' % (i, l, \
                         current_lr, epsilon, time.time() - start)
         log_file.write(log_text + '\n')
