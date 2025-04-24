@@ -18,11 +18,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
+# set the path to imagenet dataset
 IMAGENET_PATH = "archive/tiny-imagenet-200/tiny-imagenet-200"
 NUM_LABELS = 200  # LIMIT TO 200 CLASSES
 SIZE = 299
 
+# the main function
 def main(args, gpus):
     
 
@@ -45,12 +46,16 @@ def main(args, gpus):
     else:
         target_class = args.target_class
 
+    
     batch_size = args.batch_size
     out_dir = args.out_dir
     epsilon = args.epsilon
+
     lower = np.clip(initial_img - args.epsilon, 0., 1.)
     upper = np.clip(initial_img + args.epsilon, 0., 1.)
+
     adv = initial_img.copy() if not args.restore else np.clip(np.load(args.restore), lower, upper)
+
     batch_per_gpu = batch_size // len(gpus)
     log_iters = args.log_iters
     queries_per_iter = args.samples_per_draw
@@ -60,6 +65,7 @@ def main(args, gpus):
     k = args.top_k
     goal_epsilon = epsilon
     adv_thresh = args.adv_thresh
+
     if k > 0:
         if target_class == -1:
             raise ValueError("Partial-information attack is a targeted attack.")
@@ -104,12 +110,14 @@ def main(args, gpus):
     with open(os.path.join(out_dir, 'args.json'), 'w') as args_file:
         json.dump(args.__dict__, args_file)
 
+# function to calculate loss
     def standard_loss(eval_points, noise):
         logits, _ = model(sess, eval_points)
         logits = logits[:, :NUM_LABELS]
         losses = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
         return losses, noise
-
+    
+# calculating label only loss
     def label_only_loss(eval_points, noise):
         tiled_points = tf.tile(tf.expand_dims(eval_points, 0), [zero_iters, 1, 1, 1, 1])
         noised_eval_im = tiled_points + tf.random.uniform(tf.shape(tiled_points), minval=-1, maxval=1) * args.label_only_sigma
@@ -152,6 +160,7 @@ def main(args, gpus):
 
     grad_estimate = tf.reduce_mean(grad_estimates, axis=0)
     final_losses = tf.concat(final_losses, axis=0)
+
 
     def get_grad(pt, spd, bs):
         num_batches = spd // bs
