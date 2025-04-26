@@ -1,12 +1,36 @@
-# Code for Black-box Adversarial Attacks with Limited Queries and Information
-Codebase for reproducing the results in the paper "Black-Box Adversarial Attacks with Limited Queries and Information". The paper can be found [on arxiv](http://arxiv.org/abs/1804.08598), and our explanatory blog post can be found on [labsix.org](http://labsix.org).
+# Label-Only and CAM-Guided Black-Box Adversarial Attacks
 
-To reproduce our results:
+This repository implements various **black-box adversarial attacks** focusing on **label-only access** and **CAM-guided patchwise perturbations**. The attacks employ strategies such as **NES-based gradient estimation** and **temperature scheduling** for improved query efficiency, leveraging **top-k class labels** or **CAM (Class Activation Map)** information to guide perturbations.
 
-1. Make a directory `tools/data`, and in it put the decompressed Inceptionv3 classifier from (http://download.tensorflow.org/models/inception_v3_2016_08_28.tar.gz)
-2. Set `IMAGENET_PATH` in main.py, attacks.py, and precompute.py to the location of the ImageNet dataset on your machine.
-3. Precompute the starting images (for partial-information and label-only attacks) with `python precompute.py`
-4. Run the reproduction scripts with `{query-limited|partial-info|label-only}.sh`, making sure to first edit them specifying an img-index (by default runs on imagenet image 0) 
+## Key Features:
+- **Label-Only Attacks**: Target models using only label information for adversarial perturbations.
+- **CAM-Guided Attacks**: Incorporates Class Activation Maps to focus perturbations on regions that influence model predictions.
+- **Patchwise Perturbations**: The adversarial attack is applied in smaller, localized patches rather than globally, to enhance attack efficacy and reduce visibility.
+- **Query Efficiency**: Optimized to minimize the number of queries required for success, with a focus on efficient gradient estimation techniques (NES).
+- **Adaptive Epsilon**: Incorporates temperature scheduling to dynamically adjust the magnitude of perturbations over time.
+
+## Attack Methods:
+
+### 1. **Label-Only Attacks**
+   - **Target**: Black-box models with only top-k class label information accessible.
+   - **Strategy**: Uses NES-based gradient estimation to minimize loss and generate adversarial examples.
+   - **Function**: `label_only_attack` and `label_only_attack_patchwise`
+
+### 2. **CAM-Guided Patchwise Attacks**
+   - **Target**: Black-box models using Class Activation Maps to guide perturbations to important image regions.
+   - **Strategy**: NES gradient estimation applied in a patchwise manner with CAM guidance.
+   - **Function**: `partial_info_attack_patchwise`, `label_only_attack_patchwise`, `query_limited_attack_patchwise`, `query_limited_attack_patchwise_temp`
+
+### 3. **Query-Limited Attacks**
+   - **Target**: Adversarial attacks under strict query budgets, optimizing attack efficiency.
+   - **Strategy**: Reduces the number of queries while maintaining attack success by applying query-limited versions of NES.
+   - **Function**: `query_limited_attack_patchwise`, `query_limited_attack_patchwise_temp`
+
+### 4. **Temperature Scheduling**
+   - **Target**: Provides a dynamic schedule for adjusting the perturbation size during the attack.
+   - **Strategy**: Decays the perturbation magnitude using a temperature-based decay function.
+   - **Function**: `temperature_schedule`
+
 
 ## Citation
 ```
