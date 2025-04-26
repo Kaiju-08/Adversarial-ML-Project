@@ -33,7 +33,7 @@ This repository implements various **black-box adversarial attacks** focusing on
 
 #### If you want to check the results for your input run the novelty_implementation.ipynb with the paths of original image and target class image adjusted
 
-## Citation
+## Citation for original code files
 ```
 @unpublished{limited-blackbox,
     author= {Andrew Ilyas and Logan Engstrom and Anish Athalye and Jessy Lin},
