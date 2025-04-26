@@ -31,7 +31,7 @@ This repository implements various **black-box adversarial attacks** focusing on
    - **Strategy**: Decays the perturbation magnitude using a temperature-based decay function.
    - **Function**: `temperature_schedule`
 
-#### If you want to check the results for your input run the novelty_implementation.ipynb with the paths of original image and target class image adjusted
+#### If you want to check the results for your input run the novelty_implemented.ipynb with the paths of original image and target class image adjusted
 
 ## Citation for original code files
 ```
